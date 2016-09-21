@@ -3,7 +3,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
--- Create VGA entity with correct inputs and outputs
+-- VGA entity with correct inputs and outputs
 entity vga is
     Port (
 		clk25         : in  std_logic;
@@ -18,7 +18,7 @@ entity vga is
 	 );
 end vga;
 
--- Create architecture for entity just create: VGA
+-- Architecture for the entity just created :- VGA
 architecture Behavioral of vga is
 
    -- Set the timing constants for the display
