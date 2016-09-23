@@ -14,8 +14,7 @@ entity vga is
 		vgaVSync      : out std_logic;
 		frameAddress  : out std_logic_vector(18 downto 0);
 		framePixel    : in  std_logic_vector(11 downto 0);
-		blanking      : out std_logic
-	 );
+		blanking      : out std_logic);
 end vga;
 
 -- Architecture for the entity just created :- VGA
