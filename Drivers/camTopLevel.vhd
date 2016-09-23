@@ -58,7 +58,7 @@ architecture Behavioral of topOV7670 is
     clk25     : in std_logic;
     blanking  : in std_logic;
     inHSYNC   : in std_logic;
-    vsync_in  : in std_logic;
+    inVSYNC  : in std_logic;
     outHSYNC  : out std_logic;
     outVSYNC  : out std_logic;
     swSobel   : in std_logic);
@@ -100,25 +100,25 @@ architecture Behavioral of topOV7670 is
 
 
  	component vga
- 	port(
+ 	port (
  		clk25     : in std_logic;
- 		vga_red   : out std_logic_vector(3 downto 0);
- 		vga_green : out std_logic_vector(3 downto 0);
- 		vga_blue  : out std_logic_vector(3 downto 0);
- 		vga_hsync : out std_logic;
- 		vga_vsync : out std_logic;
+ 		vgaR   : out std_logic_vector(3 downto 0);
+ 		vgaG : out std_logic_vector(3 downto 0);
+ 		vgaB  : out std_logic_vector(3 downto 0);
+ 		vgaHSYNC : out std_logic;
+ 		vgaVSYNC : out std_logic;
  		blanking  : out std_logic;
 
- 		frame_addr  : out std_logic_vector(18 downto 0);
- 		frame_pixel : in  std_logic_vector(11 downto 0));
+ 		frameAddress  : out std_logic_vector(18 downto 0);
+ 		framePixel : in  std_logic_vector(11 downto 0));
  	end component;
 
- 	signal frame_addr      : std_logic_vector(18 downto 0);
- 	signal frame_pixel     : std_logic_vector(11 downto 0);
+ 	signal frameAddress      : std_logic_vector(18 downto 0);
+ 	signal framePixel     : std_logic_vector(11 downto 0);
 
- 	signal capture_addr    : std_logic_vector(18 downto 0);
- 	signal capture_data    : std_logic_vector(11 downto 0);
-  signal capture_we      : std_logic_vector(0 downto 0);
+ 	signal captureAddress    : std_logic_vector(18 downto 0);
+ 	signal captureData    : std_logic_vector(11 downto 0);
+  signal captureWe      : std_logic_vector(0 downto 0);
  	signal resend          : std_logic;
  	signal finConfig : std_logic;
 
@@ -140,49 +140,49 @@ architecture Behavioral of topOV7670 is
 
  begin
 
- button_debounce: debounce port MAP(
+ button_debounce: debounce
+ port map (
  		clk => clk50,
  		i   => button,
- 		o   => resend
- 	);
+ 		o   => resend);
 
- 	inst_vga: vga port MAP(
+ 	inst_vga: vga
+  port map (
  		clk25       => clk25,
- 		vga_red     => red,
- 		vga_green   => green,
- 		vga_blue    => blue,
- 		vga_hsync   => hsync,
- 		vga_vsync   => vsync,
- 		frame_addr  => frame_addr,
- 		frame_pixel => frame_pixel,
- 		blanking => blanking
- 	);
+ 		vgaR     => red,
+ 		vgaG   => green,
+ 		vgaB    => blue,
+ 		vgaHSYNC   => hsync,
+ 		vgaVSYNC   => vsync,
+ 		frameAddress  => frameAddress,
+ 		framePixel => framePixel,
+ 		blanking => blanking);
 
  fb : blk_mem_gen_0
-   port MAP (
+   port map (
      clka  => ovPCLK,
-     wea   => capture_we,
-     addra => capture_addr,
-     dina  => capture_data,
+     wea   => captureWe,
+     addra => captureAddress,
+     dina  => captureData,
 
      clkb  => clk50,
-     addrb => frame_addr,
-     doutb => frame_pixel
-   );
+     addrb => frameAddress,
+     doutb => framePixel);
 
-   led <= "0000000" & finConfig;
+ led <= "0000000" & finConfig;
 
- capture: ovCapture port MAP(
+ capture: ovCapture
+ port map (
  		pclk  => ovPCLK,
  		vsync => ovVSYNC,
  		href  => ovHREF,
  		d     => ovD,
- 		addr  => capture_addr,
- 		dout  => capture_data,
- 		we    => capture_we(0)
- 	);
+ 		addr  => captureAddress,
+ 		dout  => captureData,
+ 		we    => captureWe(0));
 
- controller: ovController port MAP(
+ controller: ovController
+ port map (
  		clk   => clk50,
  		sioc  => ovSIOC,
  		resend => resend,
@@ -190,33 +190,27 @@ architecture Behavioral of topOV7670 is
  		siod  => ovSIOD,
  		pwdn  => ovPWDN,
  		reset => ovRESET,
- 		xclk  => ovXCLK
- 	);
+ 		xclk  => ovXCLK);
 
  clocking_inst : clocking
-   port map
-    (-- Clock in ports
-     clk100 => clk100,
-     -- Clock out ports
-     clk50 => clk50,
-     clk25 => clk25);
+   port map (
+     clk100 => clk100, -- Clock in ports
+     clk50 => clk50,   -- Clock out ports
+     clk25 => clk25);  -- Clock out ports
 
      processing_inst : processing
-     port map
-     (
+     port map (
          clk25 => clk25,
          r => red,
          g => green,
          b => blue,
-         vgaPrR => vga_red,
-         vgaPrG => vga_green,
-         vgaPrB => vga_blue,
+         vgaPrR => vgaR,
+         vgaPrG => vgaG,
+         vgaPrB => vgaB,
          blanking => blanking,
          inHSYNC => hsync,
-         vsync_in => vsync,
-         outHSYNC => vga_hsync,
-         outVSYNC => vga_vsync,
-         swSobel => switch0
-     );
-
+         inVSYNC => vsync,
+         outHSYNC => vgaHSYNC,
+         outVSYNC => vgaVSYNC,
+         swSobel => switch0);
 end Behavioral;
