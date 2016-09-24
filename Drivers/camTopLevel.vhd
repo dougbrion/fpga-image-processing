@@ -31,6 +31,7 @@ entity topOV7670 is
 		switch0   : in    std_logic);
 end topOV7670;
 
+-- Architecture for the entity just created :- topOV7670
 architecture Behavioral of topOV7670 is
 
 	component debounce
